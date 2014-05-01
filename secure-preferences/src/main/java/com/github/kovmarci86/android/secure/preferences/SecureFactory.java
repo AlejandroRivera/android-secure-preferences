@@ -5,15 +5,11 @@ import java.security.NoSuchAlgorithmException;
 
 import javax.crypto.NoSuchPaddingException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import android.content.Context;
 import android.content.SharedPreferences;
-
+import android.util.Log;
 import com.github.kovmarci86.android.secure.preferences.encryption.EncryptionAlgorithm;
 import com.github.kovmarci86.android.secure.preferences.util.SecureUtils;
-
 import edu.gmu.tec.scout.utilities.Encryption;
 
 /**
@@ -21,12 +17,13 @@ import edu.gmu.tec.scout.utilities.Encryption;
  * @author NoTiCe
  */
 public final class SecureFactory {
+    public static final String TAG = SecureFactory.class.getName();
+
     private static final String INITIALIZATION_ERROR = "Can not initialize SecureSharedPreferences";
     /** Version 1 identifier. */
     public static final int VERSION_1 = 1;
     /** Latest version constant. Note: this may change with later versions */
     public static final int LATEST_VERSION = VERSION_1;
-    private static final Logger LOGGER = LoggerFactory.getLogger(SecureFactory.class);
 
     /**
      * Hidden util constructor.
@@ -49,7 +46,7 @@ public final class SecureFactory {
             sharedPreferences = new SecureSharedPreferences(original, encryption);
         }
         if (SecureUtils.getVersion(sharedPreferences) < VERSION_1) {
-            LOGGER.info("Initial migration to Secure storage.");
+            Log.i(TAG, "Initial migration to Secure storage.");
             SecureUtils.migrateData(original, sharedPreferences, VERSION_1);
         }
         return sharedPreferences;
