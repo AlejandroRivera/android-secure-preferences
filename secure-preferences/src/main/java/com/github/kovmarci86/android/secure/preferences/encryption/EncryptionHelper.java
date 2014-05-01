@@ -29,6 +29,32 @@ public class EncryptionHelper {
     }
 
     /**
+     * Encodes a single value to string.
+     * May result null on an internal problem.
+     * @param <T> The type of the value.
+     * @param value The T type of value to encrypt.
+     * @return The encrypted value as string.
+     */
+    public <T> String encode(T value) {
+        String result = null;
+        if (value != null) {
+            try {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                ObjectOutputStream oos = new ObjectOutputStream(baos);
+                oos.writeObject(value);
+                byte[] byteArray = baos.toByteArray();
+                byte[] encrypt = encryption.encrypt(byteArray);
+                result = Base64.encodeToString(encrypt, Base64.DEFAULT);
+            } catch (IOException e) {
+                Log.e(TAG, "Error encoding value", e);
+            } catch (EncryptionException e) {
+                Log.e(TAG, "Error encoding value", e);
+            }
+        }
+        return result;
+    }
+
+    /**
      * Reads a value from a {@link SharedPreferences}.
      * @param <T> The type of the result and the default value.
      * @param prefs The preferences to use.
@@ -52,34 +78,26 @@ public class EncryptionHelper {
         return result;
     }
 
-    /**
-     * Encodes a single value to string.
-     * May result null on an internal problem.
-     * @param <T> The type of the value.
-     * @param value The T type of value to encrypt.
-     * @return The encrypted value as string.
-     */
-    public <T> String encode(T value) {
-        String result = null;
-        if (value != null) {
+    public <T> T decode(String value, T defValue){
+        ObjectInputStream ois = readDecoded(value);
+        if (ois != null){
             try {
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                ObjectOutputStream oos = new ObjectOutputStream(baos);
-                oos.writeObject(value);
-                byte[] byteArray = baos.toByteArray();
-                byte[] encrypt = encryption.encrypt(byteArray);
-                result = Base64.encodeToString(encrypt, Base64.DEFAULT);
+                return (T) ois.readObject();
             } catch (IOException e) {
                 Log.e(TAG, "Error reading value", e);
             } catch (ClassNotFoundException e) {
                 Log.e(TAG, "Error reading value", e);
             }
         }
-        return result;
+        return defValue;
     }
 
     private ObjectInputStream readDecoded(SharedPreferences prefs, String key) {
         String stringValue = prefs.getString(key, null);
+        return readDecoded(stringValue);
+    }
+
+    private ObjectInputStream readDecoded(String stringValue) {
         ObjectInputStream result;
         if (stringValue != null) {
             try {
