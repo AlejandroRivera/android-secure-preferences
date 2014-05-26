@@ -31,7 +31,7 @@ public class SecureSharedPreferences implements SharedPreferences {
     public SecureSharedPreferences(SharedPreferences preferences, EncryptionAlgorithm encryption) {
         this.prefs = preferences;
         this.encryption = encryption;
-        helper = new EncryptionHelper(encryption);
+        this.helper = new EncryptionHelper(encryption);
     }
 
     @Override
@@ -100,5 +100,9 @@ public class SecureSharedPreferences implements SharedPreferences {
 
     protected void setHelper(EncryptionHelper helper) {
         this.helper = helper;
+    }
+
+    public EncryptionHelper getHelper() {
+        return helper;
     }
 }
